@@ -1,0 +1,26 @@
+---
+resources:
+- name: resource-articulate
+  type: git
+  source:
+    uri: https://github.com/goehringc/pcf-articulate-code.git
+
+- name: deploy-articulate-aws
+  type: cf
+  source:
+    api: {{cf-api-aws}}
+    username: {{cf-username-aws}}
+    password: {{cf-password-aws}}
+    organization: {{cf-organization-aws}}
+    space: {{cf-space-aws}}
+    skip_cert_check: true
+
+jobs:
+- name: job-deploy-articulate-aws
+  serial: true
+  plan:
+  - {get: resource-articulate, trigger: true}
+  - put: deploy-articulate-aws
+    params:
+      manifest: resource-articulate/manifest.yml
+      path: resource-articulate
