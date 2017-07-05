@@ -1,0 +1,120 @@
+groups:
+- name: main
+  jobs:
+  - build-artifact
+  - deploy-app
+  - patch
+  - major
+  - minor
+
+resources:
+- name: git-assets
+  type: git
+  source:
+    branch: master
+    uri: https://github.com/goehringc/pcf-articulate-code
+- name: cf-aws 
+  type: cf
+  source:
+    api: {{cf-api-aws}}
+    organization: {{cf-org-aws}}
+    space: {{cf-space-aws}}
+    username: {{cf-user-aws}}
+    password: {{cf-pwd-aws}}
+    skip_cert_check: true
+- name: version
+  type: semver
+  source:
+    driver: git
+    uri: https://github.com/goehringc/pcf-articulate-code
+    branch: version
+    file: version
+    username: goehringc
+    password: {{github-token}}
+- name: pre-release
+  type: github-release
+  source:
+    user: goehringc
+    repository: pcf-articulate-code
+    access_token: {{github-token}}
+    pre_release: true
+    drafts: true
+
+jobs:
+- name: build-artifact
+  serial: true
+  public: true
+  serial_groups: [version]
+  plan:
+  - get: git-assets
+    trigger: true
+  - get: version
+    params: {pre: rc}
+    trigger: true
+  - task: mvn-package
+    file: git-assets/ci/tasks/mvn-package.yml
+    params:
+      CF_APP: {{cf-app-name}}
+  - put: pre-release
+    params:
+      name: version/number
+      tag: version/number
+      globs:
+        - articulate-releases/articulate-demo*.jar
+  - put: version
+    params:
+      file: version/number
+
+- name: deploy-app
+  serial: true
+  public: true
+  serial_groups: [version]
+  plan:
+  - get: git-assets
+    trigger: true
+    passed:
+    - build-artifact
+  - get: pre-release
+    trigger: true
+    params:
+      globs:
+        - articulate-demo*.jar
+    passed:
+      - build-artifact
+  - get: version
+    params:
+  - task: get-current-app-color
+    file: git-assets/ci/tasks/current-app-get-info.yml
+    params:
+      CF_APP: {{cf-app-name}}
+      CF_API: {{cf-api}}
+      CF_ORG: {{cf-org}}
+      CF_USER: {{cf-user}}
+      CF_PWD: {{cf-pwd}}
+      CF_SPACE: {{cf-space}}
+  - task: prepare-app-manifest
+    file: git-assets/ci/tasks/app-manifest-prep.yml
+    params:
+      CF_APP: {{cf-app-name}}
+  - put: cf-aws 
+    params:
+      manifest: ./app-manifest-output/manifest.yml
+
+- name: patch
+  serial_groups: [version]
+  plan:
+  - get: version
+    passed: [ship-it]
+    trigger: true
+  - put: version
+    params: {bump: patch, pre: rc}
+- name: major
+  serial_groups: [version]
+  plan:
+  - put: version
+    params: {bump: major, pre: rc}
+- name: minor
+  serial_groups: [version]
+  plan:
+  - put: version
+    params: {bump: minor, pre: rc}
