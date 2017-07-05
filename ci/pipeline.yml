@@ -3,7 +3,6 @@ groups:
   jobs:
   - build-artifact
   - deploy-app
-  - patch
   - major
   - minor
 
@@ -60,7 +59,7 @@ jobs:
       name: version/number
       tag: version/number
       globs:
-        - articulate-releases/articulate-demo*.jar
+        - articulate-cg-releases/articulate-cg*.jar
   - put: version
     params:
       file: version/number
@@ -78,20 +77,11 @@ jobs:
     trigger: true
     params:
       globs:
-        - articulate-demo*.jar
+        - articulate-cg*.jar
     passed:
       - build-artifact
   - get: version
     params:
-  - task: get-current-app-color
-    file: git-assets/ci/tasks/current-app-get-info.yml
-    params:
-      CF_APP: {{cf-app-name}}
-      CF_API: {{cf-api}}
-      CF_ORG: {{cf-org}}
-      CF_USER: {{cf-user}}
-      CF_PWD: {{cf-pwd}}
-      CF_SPACE: {{cf-space}}
   - task: prepare-app-manifest
     file: git-assets/ci/tasks/app-manifest-prep.yml
     params:
@@ -100,14 +90,6 @@ jobs:
     params:
       manifest: ./app-manifest-output/manifest.yml
 
-- name: patch
-  serial_groups: [version]
-  plan:
-  - get: version
-    passed: [ship-it]
-    trigger: true
-  - put: version
-    params: {bump: patch, pre: rc}
 - name: major
   serial_groups: [version]
   plan:

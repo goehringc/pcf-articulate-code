@@ -9,7 +9,6 @@ image_resource:
 
 inputs:
 - name: git-assets
-- name: current-app-info
 - name: version
 
 outputs:
