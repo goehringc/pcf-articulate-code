@@ -1,6 +1,0 @@
----
-applications:
-- name: articulate-cg
-  instances: 3
-  services:
-    - attendee-service 
