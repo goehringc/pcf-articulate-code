@@ -1,7 +1,6 @@
 ---
 applications:
 - name: articulate-cg
-  buildpack: java_buildpack_offline
   instances: 3
   services:
     - attendee-service 
