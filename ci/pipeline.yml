@@ -21,6 +21,24 @@ resources:
     username: {{cf-user-aws}}
     password: {{cf-pwd-aws}}
     skip_cert_check: true
+- name: cf-vsphere
+  type: cf
+  source:
+    api: {{cf-api-vsphere}}
+    organization: {{cf-org-vsphere}}
+    space: {{cf-space-vsphere}}
+    username: {{cf-user-vsphere}}
+    password: {{cf-pwd-vsphere}}
+    skip_cert_check: true
+- name: cf-azure 
+  type: cf
+  source:
+    api: {{cf-api-azure}}
+    organization: {{cf-org-azure}}
+    space: {{cf-space-azure}}
+    username: {{cf-user-azure}}
+    password: {{cf-pwd-azure}}
+    skip_cert_check: true
 - name: version
   type: semver
   source:
@@ -88,6 +106,12 @@ jobs:
     params:
       CF_APP: {{cf-app-name}}
   - put: cf-aws 
+    params:
+      manifest: ./app-manifest-output/manifest.yml
+  - put: cf-vsphere
+    params:
+      manifest: ./app-manifest-output/manifest.yml
+  - put: cf-azure 
     params:
       manifest: ./app-manifest-output/manifest.yml
 
