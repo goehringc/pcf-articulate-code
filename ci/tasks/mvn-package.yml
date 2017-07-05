@@ -10,6 +10,6 @@ inputs:
 - name: git-assets
 - name: version
 outputs:
-- name: articulate-releases
+- name: articulate-cg-releases
 run:
   path: git-assets/ci/tasks/package.sh

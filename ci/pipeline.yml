@@ -24,6 +24,7 @@ resources:
 - name: version
   type: semver
   source:
+    initial_version: 0.0.1
     driver: git
     uri: https://github.com/goehringc/pcf-articulate-code
     branch: version
