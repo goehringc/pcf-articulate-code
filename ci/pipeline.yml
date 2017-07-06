@@ -2,7 +2,7 @@ groups:
 - name: main
   jobs:
   - build-artifact
-  - deploy-app
+  - deploy
   - major
   - minor
 
@@ -83,7 +83,7 @@ jobs:
     params:
       file: version/number
 
-- name: deploy-app
+- name: deploy
   serial: true
   public: true
   serial_groups: [version]
@@ -105,16 +105,16 @@ jobs:
     file: git-assets/ci/tasks/app-manifest-prep.yml
     params:
       CF_APP: {{cf-app-name}}
-  - put: cf-aws 
-    params:
-      manifest: ./app-manifest-output/manifest.yml
-  - put: cf-vsphere
-    params:
-      manifest: ./app-manifest-output/manifest.yml
-  - put: cf-azure 
-    params:
-      manifest: ./app-manifest-output/manifest.yml
-
+  - aggregate:
+    - put: cf-aws 
+      params:
+        manifest: ./app-manifest-output/manifest.yml
+    - put: cf-vsphere
+      params:
+        manifest: ./app-manifest-output/manifest.yml
+    - put: cf-azure
+      params:
+        manifest: ./app-manifest-output/manifest.yml
 - name: major
   serial_groups: [version]
   plan:
