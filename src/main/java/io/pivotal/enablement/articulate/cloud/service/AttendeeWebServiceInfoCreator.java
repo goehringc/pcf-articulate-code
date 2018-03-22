@@ -9,7 +9,7 @@ public class AttendeeWebServiceInfoCreator extends
 		CloudFoundryServiceInfoCreator<WebServiceInfo> {
 
 	public AttendeeWebServiceInfoCreator() {
-		super(new Tags(),"http");
+		super(new Tags(),"http","https");
 	}
 
 	@Override
