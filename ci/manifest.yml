@@ -1,7 +1,8 @@
 applications:
 - name: APPNAME
   instances: 1
-  memory: 512mb
+  memory: 1G
+  buildpack: java_buildpack
   path: APPPATH
   services:
   - attendee-service
